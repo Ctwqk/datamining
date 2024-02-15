@@ -11,18 +11,16 @@ def calDist(A,B):
         print("expect longer than 2")
 
     #ans=float(A[0]-B[0])**2/49+float(A[1]-B[1])**2
-    #ans=float(A[0]-B[0])**2+float(A[1]-B[1])**2
+    ans=float(A[0]-B[0])**2+float(A[1]-B[1])**2
     #ans=float(max(A[0]-B[0],A[1]-B[1]))
     #ans=float(A[0]-B[0]+A[1]-B[1])
     #ans=float(A[1]-B[1])
     #print(ans)
 
-    ans=(A[:-1]-B) @ kernel @ (A[:-1]-B).T 
+    #ans=(A[:-1]-B) @ kernel @ (A[:-1]-B).T 
     #special dist mamhalton
     
     return ans
-
-
 
 def kmean(dataPoint,X):
     #X=np.array([[0,-8],[0,-5],[0,-1],[0,1],[0,5]],dtype='float')
@@ -85,7 +83,6 @@ def kmean(dataPoint,X):
     X[:,1]*=scale[1]
     dataPoint[:,0]*=scale[0]
     dataPoint[:,1]*=scale[1]
-    print(X)
     result=[[],[],[],[],[]]
     
     for i in dataPoint:
@@ -98,30 +95,11 @@ def kmean(dataPoint,X):
         plt.scatter(np.array(result[i])[:,0],np.array(result[i])[:,1],c=color[i])
     
     plt.scatter(X[:,0],X[:,1],c="red")
-    plt.show()
     return result
 
 def PCA(data,num=0):
-    u=[-100,-100]
-    l=[100,100]
-    for i in data:
-        if(i[0]>u[0]):
-            u[0]=i[0]
-        if(i[0]<l[0]):
-            l[0]=i[0]
-        if(i[1]>u[1]):
-            u[1]=i[1]
-        if(i[1]<l[1]):
-            l[1]=i[1]
-    scale=[(u[0]-l[0]),u[1]-l[1]]
     data=np.array(data,dtype='float')
-    
-    #plt.scatter(dataPoint[:,0],dataPoint[:,1],c='red')
-    #plt.show()
-    
-    data[:,0]/=scale[0]
-    data[:,1]/=scale[1]
-    
+
     
     data=np.array(data,dtype='float')
     cov=np.zeros((2,2))
@@ -129,19 +107,17 @@ def PCA(data,num=0):
     mean_x=sum(data[:,0])/n
     mean_y=sum(data[:,1])/n
     cov[0][0]=sum((data[:,0]-mean_x)**2)/(n-1)
-    cov[1][1]=sum((data[:,0]-mean_y)**2)/(n-1)
-    cov[0][1]=sum((data[:,0]-mean_x)*data[:,1]-mean_y)/(n-1)
+    cov[1][1]=sum((data[:,1]-mean_y)**2)/(n-1)
+    cov[0][1]=sum((data[:,0]-mean_x)*(data[:,1]-mean_y))/(n-1)
     cov[1][0]=cov[0][1]
     eigval,eigvec=np.linalg.eig(cov)
     eigorder=np.argsort(eigval)[::-1]
     
-    
-    
     #return (eigvec.T @ data.T).T[eigorder[0]]
-    return data @ eigvec[:,eigorder[0]]
+    return eigvec[:,eigorder[0]],[mean_x,mean_y]
 
 if __name__ =="__main__":
-    fileName='data'
+    fileName='data'    
     data=[]
     with open(fileName,'r') as file:
         for line in file:
@@ -150,21 +126,23 @@ if __name__ =="__main__":
     
     X=np.array([[10,10],[-10,-10],[2,2],[3,3],[-3,-3]],dtype='float')
     
-    
     #print(len(data[0]))
     import copy
     data_=copy.deepcopy(data)
     result=kmean(data_,X)
     #print(len(data[0]))
-    totalPCA=PCA(data)
-    plt.hist(totalPCA,bins=50,color="cyan")
-    plt.title("Sampled data projected onto single axes")
+    pEigvec,meanPos=PCA(data)
+    print(pEigvec)
+    plt.quiver(*meanPos, pEigvec[0]*10, pEigvec[1]*10, color='cyan', scale=21)
 
     #print(len(data[0]))
-    PCAs=[[],[],[],[],[]]
+    pEigvecs=[[],[],[],[],[]]
+    meanPoss=[[],[],[],[],[]]
     color=['blue','black','yellow','green','purple']
 
     for i in range(len(result)):
-        PCAs[i]=PCA(result[i])
-        plt.hist(PCAs[i],bins=50,color=color[i])
-        plt.title("Sampled data projected onto single axes")
+        pEigvecs[i],meanPoss[i]=PCA(result[i])
+        plt.quiver(*meanPoss[i],pEigvecs[i][0]*5,pEigvecs[i][1]*5,color='r',scale=21)
+    print(pEigvecs)
+    plt.title('the result of kmean and PCA',c='black')
+    plt.show();
