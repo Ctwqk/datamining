@@ -43,10 +43,7 @@ def kmean(dataPoint,X):
     #plt.scatter(dataPoint[:,0],dataPoint[:,1],c='red')
     #plt.show()
     
-    dataPoint[:,0]/=scale[0]
-    dataPoint[:,1]/=scale[1]
-    X[:,0]/=scale[0]
-    X[:,1]/=scale[1]
+
     err=100
     tmp=0
     mini=0
@@ -79,10 +76,7 @@ def kmean(dataPoint,X):
             err=max(calDist(X[i],[x,y]),err)
             X[i]=[x,y]
             sumi[i]=[0,0,0]
-    X[:,0]*=scale[0]
-    X[:,1]*=scale[1]
-    dataPoint[:,0]*=scale[0]
-    dataPoint[:,1]*=scale[1]
+
     result=[[],[],[],[],[]]
     
     for i in dataPoint:
@@ -133,7 +127,6 @@ if __name__ =="__main__":
     #print(len(data[0]))
     pEigvec,meanPos=PCA(data)
     print(pEigvec)
-    plt.quiver(*meanPos, pEigvec[0]*10, pEigvec[1]*10, color='cyan', scale=21)
 
     #print(len(data[0]))
     pEigvecs=[[],[],[],[],[]]
@@ -142,7 +135,6 @@ if __name__ =="__main__":
 
     for i in range(len(result)):
         pEigvecs[i],meanPoss[i]=PCA(result[i])
-        plt.quiver(*meanPoss[i],pEigvecs[i][0]*5,pEigvecs[i][1]*5,color='r',scale=21)
     print(pEigvecs)
     plt.title('the result of kmean and PCA',c='black')
     plt.show();
