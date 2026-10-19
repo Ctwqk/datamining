@@ -103,3 +103,46 @@ def test_training_learns_a_separable_toy_problem():
     assert res.metrics["accuracy"] > 0.9
     assert len(res.history["train_loss"]) == len(res.history["val_loss"]) >= 1
     assert res.history["train_loss"][-1] < res.history["train_loss"][0]
+
+
+def test_training_uses_fit_rows_and_scores_test_only_at_the_end(monkeypatch):
+    run_epoch = lstm._run_epoch
+    calls = []
+
+    def record_epoch(model, loader, criterion, device, optimizer=None):
+        calls.append((len(loader.dataset), optimizer is not None))
+        return run_epoch(model, loader, criterion, device, optimizer)
+
+    monkeypatch.setattr(lstm, "_run_epoch", record_epoch)
+    result = lstm.train_and_evaluate(
+        [f"{'good' if i % 2 == 0 else 'bad'} flight token{i}" for i in range(20)],
+        ["good", "bad"] * 10,
+        [1, 0] * 10,
+        ["unseen"] * 3,
+        ["unseen"] * 3,
+        [1, 0, 1],
+        embedding_dim=4,
+        epochs=2,
+        batch_size=4,
+        val_fraction=0.1,
+        device="cpu",
+        verbose=False,
+    )
+    assert calls == [(18, True), (2, False), (18, True), (2, False), (3, False)]
+    # 18 fit-only tokens + good/bad/flight + pad/unk; no validation- or test-only words.
+    assert result.vocab_size == 23
+    assert len(result.y_pred) == 3
+
+
+def test_epoch_thresholds_probabilities_and_keeps_partial_batch():
+    model = lstm.DualLSTM(vocab_size=3, embedding_dim=4)
+    with torch.no_grad():
+        for parameter in model.parameters():
+            parameter.zero_()
+        model.fc2.bias.fill_(0.2)  # positive probability, despite logit being below 0.5
+    dataset = lstm.ReviewDataset([[2]] * 5, [[2]] * 5, [1] * 5)
+    loader = lstm.DataLoader(dataset, batch_size=2, collate_fn=lstm.collate)
+    _, accuracy, scores = lstm._run_epoch(model, loader, torch.nn.BCEWithLogitsLoss(), "cpu")
+    assert accuracy == 1.0
+    assert scores.shape == (5,)
+    assert np.allclose(scores, 1 / (1 + np.exp(-0.2)))
