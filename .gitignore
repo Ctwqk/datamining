@@ -19,7 +19,9 @@ htmlcov/
 
 # Regenerable artefacts (see README: "Reproduce")
 airline_review_mining/data/processed/
+airline_review_mining/data/external/
 airline_review_mining/artifacts/
+.nltk_data/
 *.pth
 *.onnx
 runs/

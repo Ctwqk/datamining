@@ -1,0 +1,83 @@
+[project]
+name = "datamining-coursework"
+version = "0.2.0"
+description = "Data-mining coursework: airline-review mining pipeline, MapReduce friend recommendation, K-means + PCA, Titanic visualisation."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scikit-learn>=1.5",
+    "scipy>=1.13",
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "nltk>=3.9",
+    "beautifulsoup4>=4.12",
+    "requests>=2.32",
+]
+
+[project.optional-dependencies]
+# PyTorch LSTM classifiers (airline_reviews.lstm). CPU wheels are enough for this data size.
+deep = ["torch>=2.5"]
+# Optional zero-shot transformer sentiment baseline (airline_reviews.transformer).
+transformer = ["torch>=2.5", "transformers>=4.45"]
+# MapReduce-style friend recommendation on PySpark (hw3). Needs a JDK (17 or 21).
+spark = ["pyspark>=3.5"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "nbconvert>=7.16",
+    "ipykernel>=6.29",
+]
+
+[project.scripts]
+airline-reviews = "airline_reviews.pipeline:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["airline_review_mining/src/airline_reviews"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+# Use the (much smaller) CPU-only PyTorch wheels on Linux.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["airline_review_mining/tests", "hw3_friend_recommendation/tests", "hw4_kmeans_pca/tests"]
+pythonpath = ["hw3_friend_recommendation", "hw4_kmeans_pca"]
+addopts = "-ra"
+filterwarnings = [
+    # seaborn 0.13 still passes `vert=` to Matplotlib 3.11
+    "ignore:vert. bool was deprecated:matplotlib.MatplotlibDeprecationWarning",
+    # PySpark 4.x only checks the pandas version for its pandas API, which is unused here
+    "ignore:PySpark does not yet fully support pandas:FutureWarning",
+]
+markers = [
+    "spark: needs pyspark and a JDK (skipped when unavailable)",
+    "slow: slower end-to-end tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["airline_review_mining/src", "hw3_friend_recommendation", "hw4_kmeans_pca"]
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# long f-strings / help texts are left to the formatter
+ignore = ["E501"]
