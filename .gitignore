@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+build/
+dist/
+htmlcov/
+.coverage
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+.spyder-ukpy3/
+
+# Regenerable artefacts (see README: "Reproduce")
+airline_review_mining/data/processed/
+airline_review_mining/artifacts/
+*.pth
+*.onnx
+runs/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Large third-party files you may download yourself
+glove*.txt
+glove*.zip
+.env
