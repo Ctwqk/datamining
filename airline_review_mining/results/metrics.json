@@ -1,0 +1,513 @@
+{
+  "meta": {
+    "version": "0.2.0",
+    "seed": 42,
+    "sample": null,
+    "python": "3.12.7",
+    "platform": "Linux-6.12.57+deb13-amd64-x86_64-with-glibc2.41",
+    "n_reviews": 15252,
+    "n_train": 12201,
+    "n_test": 3051,
+    "test_positive_rate": 0.5375286791215995
+  },
+  "eda": {
+    "mean_rating": 5.6496197220036715,
+    "recommended_rate": 0.5376344086021505,
+    "vader_compound_vs_rating_spearman": 0.722331615921346,
+    "median_words_per_review": 114.0,
+    "reviews_per_airline": {
+      "british-airways": 3576,
+      "qatar-airways": 2374,
+      "emirates": 2324,
+      "southwest-airlines": 1704,
+      "singapore-airlines": 1548,
+      "air-france": 1335,
+      "airasia": 930,
+      "korean-air": 551,
+      "asiana-airlines": 506,
+      "japan-airlines": 404
+    },
+    "vader_mean_compound_recommended": 0.7011286585365853,
+    "vader_mean_compound_not_recommended": -0.22723711003970506,
+    "top_negative_review_aspects": {
+      "food": 1186,
+      "service": 1072,
+      "staff": 812,
+      "seat": 492,
+      "crew": 435,
+      "entertainment": 330,
+      "waiting": 290,
+      "meal": 257,
+      "luggage": 242,
+      "cabin crew": 228,
+      "breakfast": 196,
+      "lounge": 191,
+      "seating": 181,
+      "price": 172,
+      "baggage": 159
+    }
+  },
+  "classification": [
+    {
+      "accuracy": 0.5375286791215995,
+      "precision": 0.5375286791215995,
+      "recall": 1.0,
+      "f1": 0.6992112555958218,
+      "confusion_matrix": [
+        [
+          0,
+          1411
+        ],
+        [
+          0,
+          1640
+        ]
+      ],
+      "roc_auc": 0.5,
+      "f1_ci": [
+        0.6840558754535256,
+        0.7137504531263049
+      ],
+      "accuracy_ci": [
+        0.519821370042609,
+        0.5549082268108817
+      ],
+      "name": "majority",
+      "description": "Always predicts the most frequent class",
+      "input": "raw",
+      "best_params": {},
+      "cv_f1": null,
+      "fit_seconds": 0.0
+    },
+    {
+      "accuracy": 0.805965257292691,
+      "precision": 0.8145258103241296,
+      "recall": 0.8274390243902439,
+      "f1": 0.8209316394434362,
+      "confusion_matrix": [
+        [
+          1102,
+          309
+        ],
+        [
+          283,
+          1357
+        ]
+      ],
+      "roc_auc": 0.8672669876060916,
+      "f1_ci": [
+        0.8061479021969767,
+        0.8340398469778562
+      ],
+      "accuracy_ci": [
+        0.7918715175352343,
+        0.8194034742707309
+      ],
+      "name": "vader + LR",
+      "description": "VADER polarity scores (neg/neu/pos/compound) -> logistic regression",
+      "input": "vader",
+      "best_params": {},
+      "cv_f1": null,
+      "fit_seconds": 0.0
+    },
+    {
+      "accuracy": 0.8279252704031466,
+      "precision": 0.8316478286734087,
+      "recall": 0.8524390243902439,
+      "f1": 0.8419150858175248,
+      "confusion_matrix": [
+        [
+          1128,
+          283
+        ],
+        [
+          242,
+          1398
+        ]
+      ],
+      "roc_auc": 0.8811783720246841,
+      "f1_ci": [
+        0.8287883340754155,
+        0.8549501733943048
+      ],
+      "accuracy_ci": [
+        0.8148148148148148,
+        0.8413634873811865
+      ],
+      "name": "tfidf + NB (raw)",
+      "description": "TF-IDF 1-2 grams on the raw text -> Complement Naive Bayes",
+      "input": "raw",
+      "best_params": {
+        "clf__alpha": 0.1
+      },
+      "cv_f1": 0.8395367105499739,
+      "fit_seconds": 16.9
+    },
+    {
+      "accuracy": 0.8380858734841036,
+      "precision": 0.8464328899637243,
+      "recall": 0.8536585365853658,
+      "f1": 0.8500303582270795,
+      "confusion_matrix": [
+        [
+          1157,
+          254
+        ],
+        [
+          240,
+          1400
+        ]
+      ],
+      "roc_auc": 0.8990142780591519,
+      "f1_ci": [
+        0.8368061123154265,
+        0.8632475781049219
+      ],
+      "accuracy_ci": [
+        0.8243198951163553,
+        0.851204523107178
+      ],
+      "name": "tfidf + LR (clean)",
+      "description": "TF-IDF on the original lemmatised / stop-word-free text -> logistic regression",
+      "input": "clean",
+      "best_params": {
+        "clf__C": 2.0
+      },
+      "cv_f1": 0.8533134888612779,
+      "fit_seconds": 13.5
+    },
+    {
+      "accuracy": 0.8534906588003933,
+      "precision": 0.8608590441621294,
+      "recall": 0.8676829268292683,
+      "f1": 0.8642575159429092,
+      "confusion_matrix": [
+        [
+          1181,
+          230
+        ],
+        [
+          217,
+          1423
+        ]
+      ],
+      "roc_auc": 0.9057017164785397,
+      "f1_ci": [
+        0.8514267311447588,
+        0.8766950723401463
+      ],
+      "accuracy_ci": [
+        0.8407079646017699,
+        0.8659455916093084
+      ],
+      "name": "tfidf + LR (raw)",
+      "description": "TF-IDF 1-2 grams on the raw text -> logistic regression",
+      "input": "raw",
+      "best_params": {
+        "clf__C": 2.0
+      },
+      "cv_f1": 0.8576407345189105,
+      "fit_seconds": 26.2
+    },
+    {
+      "accuracy": 0.8525073746312685,
+      "precision": 0.8571428571428571,
+      "recall": 0.8707317073170732,
+      "f1": 0.8638838475499092,
+      "confusion_matrix": [
+        [
+          1173,
+          238
+        ],
+        [
+          212,
+          1428
+        ]
+      ],
+      "roc_auc": 0.9057103593714888,
+      "f1_ci": [
+        0.8507423267003348,
+        0.8759170830941078
+      ],
+      "accuracy_ci": [
+        0.8393969190429368,
+        0.8649623074401835
+      ],
+      "name": "tfidf + SVM (raw)",
+      "description": "TF-IDF 1-2 grams on the raw text -> linear SVM",
+      "input": "raw",
+      "best_params": {
+        "clf__C": 0.3
+      },
+      "cv_f1": 0.8599346229067126,
+      "fit_seconds": 15.6
+    },
+    {
+      "accuracy": 0.8095706325794821,
+      "precision": 0.8242498469075321,
+      "recall": 0.8207317073170731,
+      "f1": 0.8224870149709747,
+      "confusion_matrix": [
+        [
+          1124,
+          287
+        ],
+        [
+          294,
+          1346
+        ]
+      ],
+      "roc_auc": 0.8810960484693436,
+      "name": "two-channel LSTM (random init)",
+      "description": "Original coursework architecture (review + header LSTMs), repaired training loop",
+      "input": "clean",
+      "best_params": {
+        "best_epoch": 6,
+        "epochs_run": 9
+      },
+      "cv_f1": null,
+      "glove_coverage": null,
+      "n_parameters": 2952271,
+      "device": "cpu",
+      "f1_ci": [
+        0.8073822748157082,
+        0.8367799954828982
+      ],
+      "accuracy_ci": [
+        0.7948131760078663,
+        0.8236643723369387
+      ]
+    },
+    {
+      "accuracy": 0.8328416912487709,
+      "precision": 0.841596130592503,
+      "recall": 0.848780487804878,
+      "f1": 0.8451730418943534,
+      "confusion_matrix": [
+        [
+          1149,
+          262
+        ],
+        [
+          248,
+          1392
+        ]
+      ],
+      "roc_auc": 0.9080888835110887,
+      "name": "two-channel LSTM + GloVe",
+      "description": "Original coursework architecture (review + header LSTMs), repaired training loop",
+      "input": "clean",
+      "best_params": {
+        "best_epoch": 5,
+        "epochs_run": 8
+      },
+      "cv_f1": null,
+      "glove_coverage": 0.9979066359639941,
+      "n_parameters": 2952271,
+      "device": "cpu",
+      "f1_ci": [
+        0.831473865270076,
+        0.8581710285900441
+      ],
+      "accuracy_ci": [
+        0.8190757128810227,
+        0.8459521468371026
+      ]
+    },
+    {
+      "accuracy": 0.7899049491969846,
+      "precision": 0.9044534412955466,
+      "recall": 0.6810975609756098,
+      "f1": 0.7770434782608696,
+      "confusion_matrix": [
+        [
+          1293,
+          118
+        ],
+        [
+          523,
+          1117
+        ]
+      ],
+      "roc_auc": 0.8924834920744672,
+      "name": "DistilBERT SST-2 (zero-shot)",
+      "description": "distilbert/distilbert-base-uncased-finetuned-sst-2-english, no fine-tuning; P(positive) > 0.5 -> recommended",
+      "input": "raw",
+      "best_params": {},
+      "cv_f1": null,
+      "fit_seconds": 328.5,
+      "f1_ci": [
+        0.7593500829626378,
+        0.7935780718271195
+      ],
+      "accuracy_ci": [
+        0.775811209439528,
+        0.8043264503441495
+      ],
+      "spearman_with_rating": 0.8302419085465927
+    }
+  ],
+  "top_terms": {
+    "recommended": [
+      [
+        "excellent",
+        4.709739735927845
+      ],
+      [
+        "always",
+        4.4514137827536855
+      ],
+      [
+        "great",
+        4.294044263264651
+      ],
+      [
+        "on time",
+        4.171572733046577
+      ],
+      [
+        "good",
+        4.048522512651999
+      ],
+      [
+        "comfortable",
+        3.90579089973022
+      ],
+      [
+        "thank",
+        3.8366948075027616
+      ],
+      [
+        "amazing",
+        3.756626789723102
+      ],
+      [
+        "friendly",
+        3.7409350597709814
+      ],
+      [
+        "the best",
+        3.412273048503116
+      ],
+      [
+        "best",
+        3.2208495212170254
+      ],
+      [
+        "professional",
+        3.191024705511195
+      ],
+      [
+        "thank you",
+        3.150879022605427
+      ],
+      [
+        "attentive",
+        3.057592115836342
+      ],
+      [
+        "efficient",
+        3.047433044214783
+      ]
+    ],
+    "not_recommended": [
+      [
+        "no",
+        -5.8757715973991855
+      ],
+      [
+        "worst",
+        -5.391485004665231
+      ],
+      [
+        "not",
+        -4.85800893228924
+      ],
+      [
+        "poor",
+        -4.481868415991573
+      ],
+      [
+        "ba",
+        -3.443986047097741
+      ],
+      [
+        "rude",
+        -3.3939943851533703
+      ],
+      [
+        "the worst",
+        -3.3569094374948976
+      ],
+      [
+        "terrible",
+        -3.212975022188613
+      ],
+      [
+        "never",
+        -3.211101386603476
+      ],
+      [
+        "horrible",
+        -3.1991007046921722
+      ],
+      [
+        "they",
+        -3.140210592925797
+      ],
+      [
+        "told",
+        -2.965237786942234
+      ],
+      [
+        "disappointed",
+        -2.8831809520934226
+      ],
+      [
+        "uncomfortable",
+        -2.652619101014421
+      ],
+      [
+        "hours",
+        -2.5947630682976808
+      ]
+    ]
+  },
+  "regression": [
+    {
+      "mae": 3.147184850412426,
+      "rmse": 3.434910093173831,
+      "r2": -1.2892776712902787e-07,
+      "spearman": null,
+      "within_1": 0.17699115044247787,
+      "name": "mean rating",
+      "description": "Predicts the training-set mean",
+      "best_params": {},
+      "cv_mae": null
+    },
+    {
+      "mae": 1.6899881550968883,
+      "rmse": 2.160315533530931,
+      "r2": 0.6044479091141943,
+      "spearman": 0.7644328947485345,
+      "within_1": 0.5303179285480171,
+      "name": "vader + Ridge",
+      "description": "VADER polarity scores -> ridge regression",
+      "best_params": {},
+      "cv_mae": null
+    },
+    {
+      "mae": 1.334031867834312,
+      "rmse": 1.711920654710967,
+      "r2": 0.7516085907951426,
+      "spearman": 0.846907953274285,
+      "within_1": 0.6319239593575877,
+      "name": "tfidf + Ridge (raw)",
+      "description": "TF-IDF 1-2 grams on the raw text -> ridge regression",
+      "best_params": {
+        "reg__alpha": 1.0
+      },
+      "cv_mae": 1.3696516428802101
+    }
+  ]
+}
