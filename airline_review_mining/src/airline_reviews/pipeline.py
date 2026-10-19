@@ -264,12 +264,13 @@ def run(args: argparse.Namespace) -> int:
     if args.transformer:
         clf_rows.append(run_transformer(test, args))
 
-    best = max(clf_rows, key=lambda r: r["f1"])
+    # Keep diagnostic models fixed; the test ranking is descriptive, not model selection.
+    diagnostic_clf = next(r for r in clf_rows if r["name"] == "tfidf + LR (raw)")
     plots.plot_model_comparison(clf_rows, figures / "model_comparison.png")
     plots.plot_confusion(
-        best["confusion_matrix"],
+        diagnostic_clf["confusion_matrix"],
         figures / "confusion_matrix.png",
-        f"{best['name']}\nacc {best['accuracy']:.3f}, F1 {best['f1']:.3f}",
+        f"{diagnostic_clf['name']}\nacc {diagnostic_clf['accuracy']:.3f}, F1 {diagnostic_clf['f1']:.3f}",
     )
     lr_model = fitted["tfidf + LR (raw)"]
     pos, neg = top_terms(lr_model)
@@ -277,9 +278,12 @@ def run(args: argparse.Namespace) -> int:
 
     # --- rating regression
     reg_rows, reg_preds = run_regression(train, test, args.jobs, args.seed)
-    best_reg = min(reg_rows, key=lambda r: r["mae"])
+    diagnostic_reg = next(r for r in reg_rows if r["name"] == "tfidf + Ridge (raw)")
     plots.plot_rating_regression(
-        test["rating"], reg_preds[best_reg["name"]], best_reg, figures / "rating_regression.png"
+        test["rating"],
+        reg_preds[diagnostic_reg["name"]],
+        diagnostic_reg,
+        figures / "rating_regression.png",
     )
 
     metrics = {

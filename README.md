@@ -9,7 +9,7 @@ number in this README was produced by the code in this repository.
 
 | Project | Question | Method | Headline result |
 |---|---|---|---|
-| [`airline_review_mining`](airline_review_mining) | Can review text predict whether the reviewer recommends the airline, and the 1-10 rating? | NLTK/VADER, TF-IDF + linear models, two-channel LSTM (GloVe), zero-shot DistilBERT | Best test accuracy **0.853** (TF-IDF + logistic regression) vs 0.538 majority baseline |
+| [`airline_review_mining`](airline_review_mining) | Can review text predict whether the reviewer recommends the airline, and the 1-10 rating? | NLTK/VADER, TF-IDF + linear models, two-channel LSTM (GloVe), zero-shot DistilBERT | TF-IDF + logistic regression test accuracy **0.853** vs 0.538 majority baseline |
 | [`hw3_friend_recommendation`](hw3_friend_recommendation) | Whom should a social network suggest as friends? | MapReduce-style PySpark job (mutual-friend counts) | Spark output identical to a pure-Python reference on all 1,000 users of a synthetic graph; fixed a bug in the original job |
 | [`hw4_kmeans_pca`](hw4_kmeans_pca) | What clusters does a 2-D point cloud contain? | K-means and PCA in NumPy | Reproduces the original script exactly; clustering on y alone recovers five groups of about 1,000 points |
 | [`hw7_titanic_survival`](hw7_titanic_survival) | Who survived the Titanic? | pandas/seaborn visualisation + logistic regression | 38.2% survived; 96.5% of first-class women vs 15.2% of third-class men |
@@ -63,8 +63,15 @@ flowchart LR
     ABSA[(absa_negative_reviews.csv)] --> OUT
 ```
 
-Models are tuned only with cross-validation inside the training split; the 3,051 test reviews are scored once.
-All vectorisers are fitted on training text only.
+Linear-model hyperparameters are tuned with cross-validation inside the training split; LSTM early stopping
+uses a separate validation subset of that training split. Vectorisers are fitted inside each training fold,
+and the LSTM vocabulary uses only its internal training subset. Each model is evaluated on the same 3,051
+test reviews after fitting. The confusion matrix and rating-regression plot always show TF-IDF + logistic
+regression and TF-IDF + ridge, respectively; test scores do not choose these diagnostic models.
+
+The table is an exploratory comparison across models, not an independent estimate of a model selected by
+its test ranking. The notebook also inspects test errors. Choosing a model or changing it in response to these
+results would require a fresh holdout or nested cross-validation for an unbiased final estimate.
 
 **Results: predicting "recommended" (test set, n = 3,051, 53.8% positive).**
 
@@ -138,7 +145,8 @@ $ uv run python hw3_friend_recommendation/friend_recommendation_spark.py --users
 ```
 
 **Verification.** `results/sample_recommendations.tsv` (all 1,000 users) is byte-identical between the Spark and
-the Python engines, and the tests compare both against an independent brute-force definition on random graphs.
+the Python engines. Tests check the Python reference against an independent brute-force definition on random
+graphs, then compare Spark with that reference on the toy and 1,000-user synthetic graphs.
 
 **Bug found in the original job.** `subtractByKey` was applied to an RDD keyed by `user` instead of the
 `(user, friend)` pair, so it removed nothing and current friends were recommended. On a four-user toy graph the
@@ -242,7 +250,9 @@ scripts/run_notebooks.py    headless notebook execution
 ## Known limitations and roadmap
 
 - The data is a 2024 snapshot of one review site (ten airlines, selection effects, label noise); no claim is made
-  about airlines in general. The ABSA table cannot be regenerated from this repository.
+  about airlines in general. Deduplication uses airline, header and body together; near-duplicates are not grouped,
+  and one identical body with different headers crosses the committed split. The ABSA table cannot be
+  regenerated from this repository.
 - Test-set confidence intervals are bootstrap intervals over a single split; the neural models were run with one
   seed. DistilBERT is zero-shot only: fine-tuning it on the training split is the obvious next step.
 - The assignment data for hw3 is not included, so the 10-user check from the original assignment cannot be

@@ -65,3 +65,48 @@ def test_absa_summary_on_committed_table():
     assert (top["total"] == top[["Negative", "Neutral", "Positive"]].sum(axis=1)).all()
     assert top["total"].is_monotonic_decreasing
     assert {"food", "service"} <= set(top.index)
+
+
+def test_diagnostic_models_do_not_depend_on_test_scores(
+    tmp_path, tiny_reviews, nltk_ready, monkeypatch
+):
+    classify = pipeline.run_classification
+    regress = pipeline.run_regression
+    confusion_plot = pipeline.plots.plot_confusion
+    regression_plot = pipeline.plots.plot_rating_regression
+    plotted = {}
+
+    def changed_classification(*args, **kwargs):
+        rows, fitted = classify(*args, **kwargs)
+        for row in rows:
+            row["f1"] = 1.0 if row["name"] == "majority" else 0.0
+            row["f1_ci"] = [row["f1"], row["f1"]]
+        return rows, fitted
+
+    def changed_regression(*args, **kwargs):
+        rows, predictions = regress(*args, **kwargs)
+        for row in rows:
+            row["mae"] = 0.0 if row["name"] == "mean rating" else 10.0
+            row["spearman"] = 0.0
+        return rows, predictions
+
+    def capture_confusion(matrix, path, title):
+        plotted["classification"] = title.split("\n")[0]
+        return confusion_plot(matrix, path, title)
+
+    def capture_regression(targets, predictions, row, path):
+        plotted["regression"] = row["name"]
+        return regression_plot(targets, predictions, row, path)
+
+    monkeypatch.setattr(pipeline, "run_classification", changed_classification)
+    monkeypatch.setattr(pipeline, "run_regression", changed_regression)
+    monkeypatch.setattr(pipeline.plots, "plot_confusion", capture_confusion)
+    monkeypatch.setattr(pipeline.plots, "plot_rating_regression", capture_regression)
+    assert pipeline.main(
+        ["run", "--data", str(_csv(tmp_path, tiny_reviews)), "--out", str(tmp_path / "out"),
+         "--absa", "", "--no-cache", "--no-lstm", "--bootstrap", "20", "--jobs", "1"]
+    ) == 0  # fmt: skip
+    assert plotted == {
+        "classification": "tfidf + LR (raw)",
+        "regression": "tfidf + Ridge (raw)",
+    }
