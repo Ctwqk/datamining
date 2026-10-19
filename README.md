@@ -232,7 +232,8 @@ scripts/run_notebooks.py    headless notebook execution
   small vocabulary class with a proper padding index (padding and `<unk>` were both index 0);
   `embedding.requires_grad = False` on the module did not freeze the weights (now
   `weight.requires_grad_(False)`, optional); logits were thresholded at 0.5 instead of the sigmoid output; the
-  last test batch was dropped from the metrics; the script relied on globals and a GloVe file in the working
+  last test batch was omitted from precision/recall/F1 and the confusion matrix (accuracy included it);
+  the script relied on globals and a GloVe file in the working
   directory, whereas GloVe is now streamed from the zip, keeping only vocabulary words. The architecture is
   unchanged.
 - **Scraper.** The notebook's scraping and cleaning code is now `airline_reviews.scrape` with timeouts, a polite
