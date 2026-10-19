@@ -14,8 +14,10 @@ concurrency:
 jobs:
   test:
     name: Lint, tests and smoke runs (Python ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      UV_PYTHON: ${{ matrix.python }}   # one interpreter for every uv command (overrides .python-version)
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
@@ -34,7 +36,10 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Install dependencies (locked)
-        run: uv sync --locked --python ${{ matrix.python }} --extra deep --extra spark
+        run: |
+          uv sync --locked --extra deep --extra spark
+          # fail loudly instead of silently skipping the torch / PySpark tests
+          uv run python -c "import sys, torch, pyspark; print(sys.version.split()[0], torch.__version__, pyspark.__version__)"
 
       - name: Cache NLTK corpora and preprocessing results
         uses: actions/cache@v4
