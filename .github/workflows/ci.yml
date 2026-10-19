@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint, tests and smoke runs (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked --python ${{ matrix.python }} --extra deep --extra spark
+
+      - name: Cache NLTK corpora and preprocessing results
+        uses: actions/cache@v4
+        with:
+          path: |
+            .nltk_data
+            airline_review_mining/data/processed
+          key: nltk-features-${{ hashFiles('airline_review_mining/data/full_airline_review.csv', 'airline_review_mining/src/airline_reviews/text.py', 'airline_review_mining/src/airline_reviews/features.py') }}
+          restore-keys: nltk-features-
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Unit tests
+        run: uv run pytest -q
+
+      - name: Smoke run - airline pipeline (1,500-review sample, LSTM for 1 epoch)
+        run: uv run airline-reviews run --sample 1500 --epochs 1 --bootstrap 100 --no-cache --out "$RUNNER_TEMP/airline"
+
+      - name: Smoke run - K-means + PCA
+        run: uv run python hw4_kmeans_pca/kmeans_pca.py --out "$RUNNER_TEMP/hw4"
+
+      - name: Smoke run - friend recommendation (PySpark)
+        run: uv run python hw3_friend_recommendation/friend_recommendation_spark.py --users 11 924 --top 5
+
+      - name: Execute notebooks
+        if: matrix.python == '3.12'
+        run: uv run python scripts/run_notebooks.py --out-dir "$RUNNER_TEMP/notebooks"
