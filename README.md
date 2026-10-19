@@ -23,7 +23,7 @@ git clone https://github.com/Ctwqk/datamining.git && cd datamining
 git checkout portfolio-upgrade                      # until this branch is merged
 uv sync --extra deep --extra spark                  # locked, pinned dependencies (uv.lock)
 
-uv run pytest -q                                    # 68 tests, ~30 s (downloads NLTK corpora on first run)
+uv run pytest -q                                    # includes Spark, LSTM and notebook checks; downloads NLTK corpora on first run
 uv run airline-reviews run --sample 1500 --no-lstm --out /tmp/airline-smoke    # smoke run, under a minute
 uv run python hw4_kmeans_pca/kmeans_pca.py --out /tmp/hw4                      # K-means + PCA figures
 uv run python hw3_friend_recommendation/friend_recommendation_spark.py --users 11 924   # PySpark job
@@ -177,7 +177,8 @@ uv run python hw4_kmeans_pca/kmeans_pca.py --weights 0 1 --tag y_only       # y 
 included) plots survivors against all passengers by age, sex, class and child status, and the survival rate by
 class and sex. Of 1,309 passengers 38.2% survived: 96.5% of first-class women, 88.7% of second-class women and
 49.1% of third-class women, against 34.1%, 14.6% and 15.2% of men. A logistic regression on class, sex, age,
-family size and fare reaches 0.794 +/- 0.016 accuracy in 5-fold cross-validation (majority baseline 0.618).
+family size and fare reaches 0.792 +/- 0.016 accuracy in 5-fold cross-validation (majority baseline 0.618).
+Imputation and scaling are fitted separately inside each training fold.
 
 ![Survival counts](hw7_titanic_survival/results/survival_counts.png)
 

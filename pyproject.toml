@@ -57,7 +57,7 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pytest.ini_options]
-testpaths = ["airline_review_mining/tests", "hw3_friend_recommendation/tests", "hw4_kmeans_pca/tests"]
+testpaths = ["airline_review_mining/tests", "hw3_friend_recommendation/tests", "hw4_kmeans_pca/tests", "hw7_titanic_survival/tests"]
 pythonpath = ["hw3_friend_recommendation", "hw4_kmeans_pca"]
 addopts = "-ra"
 filterwarnings = [
