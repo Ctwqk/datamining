@@ -1,6 +1,6 @@
 # datamining
 
-[![CI](https://github.com/Ctwqk/datamining/actions/workflows/ci.yml/badge.svg?branch=portfolio-upgrade)](https://github.com/Ctwqk/datamining/actions/workflows/ci.yml)
+[![CI](https://github.com/Ctwqk/datamining/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ctwqk/datamining/actions/workflows/ci.yml)
 
 Data-mining coursework (2024) rebuilt as a reproducible, tested repository: an airline-review text-mining
 pipeline (preprocessing, features, models, evaluation), a PySpark friend recommender, K-means and PCA written
@@ -20,7 +20,6 @@ Requirements: [uv](https://docs.astral.sh/uv/) and, for the PySpark part, a JDK 
 
 ```bash
 git clone https://github.com/Ctwqk/datamining.git && cd datamining
-git checkout portfolio-upgrade                      # until this branch is merged
 uv sync --extra deep --extra spark                  # locked, pinned dependencies (uv.lock)
 
 uv run pytest -q                                    # includes Spark, LSTM and notebook checks; downloads NLTK corpora on first run
@@ -258,5 +257,5 @@ scripts/run_notebooks.py    headless notebook execution
   seed. DistilBERT is zero-shot only: fine-tuning it on the training split is the obvious next step.
 - The assignment data for hw3 is not included, so the 10-user check from the original assignment cannot be
   reproduced; the synthetic graph validates correctness and speed only.
-- No LICENSE file yet (to be chosen by the owner). The scraped reviews and the Titanic CSV come from third
+- Code is released under the [MIT License](LICENSE). The scraped reviews and the Titanic CSV come from third
   parties; check their terms before redistributing.
