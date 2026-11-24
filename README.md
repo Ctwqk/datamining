@@ -30,7 +30,7 @@ uv run python scripts/run_notebooks.py --out-dir /tmp/notebooks                #
 ```
 
 The full airline run that produced the committed `airline_review_mining/results/` (about 13 minutes on 4 CPU
-threads of a shared workstation, no GPU) is described in
+threads, no GPU) is described in
 [Reproducing the committed results](#reproducing-the-committed-results).
 
 ## Airline-review mining
